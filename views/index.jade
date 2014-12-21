@@ -1,0 +1,64 @@
+extends layout
+
+block content
+  h1= title
+  h1 Tunnelbanor (10 min att gå)
+  table
+    thead
+      td Från
+      td Till
+      td Om
+    tbody
+      for row in data.TrafficInfo.Metros
+        tr
+          td= row.data.StopAreaName
+          td= row.data.Destination
+          td= row.time.fromNow()
+  h1 Bussar (10 min att gå)
+  table
+    thead
+      td Från
+      td Till
+      td Om
+    tbody
+      for row in data.TrafficInfo.Buses
+        tr
+          td= row.data.StopAreaName
+          td= row.data.Destination
+          td= row.time.fromNow()
+  h1 Pendeltåg (15 min att gå)
+  table
+    thead
+      td Från
+      td Till
+      td Om
+    tbody
+      for row in data.TrafficInfo.Trains
+        tr
+          td= row.data.StopAreaName
+          td= row.data.Destination
+          td= row.time.fromNow()
+  h1 Lokalbanor
+  table
+    thead
+      td Från
+      td Till
+      td Om
+    tbody
+      for row in data.TrafficInfo.Trams
+        tr
+          td= row.data.StopAreaName
+          td= row.data.Destination
+          td= row.time.fromNow()
+  h1 Båtar
+  table
+    thead
+      td Från
+      td Till
+      td Om
+    tbody
+      for row in data.TrafficInfo.Ships
+        tr
+          td= row.data.StopAreaName
+          td= row.data.Destination
+          td= row.time.fromNow()
