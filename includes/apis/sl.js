@@ -86,26 +86,56 @@ var shiftToNow = function(data) {
 
 
 module.exports = function(secrets) {
-  var apikey = secrets.trafiklab.slv3.apikey;
   var timewindow = 60;
 
-  return function(siteids, callback) {
+  var returnVal = { };
+
+  var cache = { };
+
+  var permonth = 10000;
+
+  var secondspermonth = 60 * 60 * 24 * 31;
+
+  console.log(secondspermonth / permonth);
+
+  returnVal.getDepartures = function(siteids, callback) {
     var _collector = { ExecutionTime: 0, TrafficInfo: { Metros: [ ], Buses: [ ], Trams: [ ], Trains: [ ], Ships: [ ] } };
 
-    var fetcher = function(index, collector) {
-      if(index >= siteids.length) { callback(undefined, collector); }
-      else { 
-        var url = "http://api.sl.se/api2/realtimedepartures.json?key="+apikey+"&siteid="+siteids[index]+"&timewindow="+timewindow;
+
+    var saveFor = 10;
+    var fetch = function(site, cb) {
+      if(cache.hasOwnProperty(site) && cache[site].time.isAfter(moment().subtract(60, "seconds"))) {
+        cb(null, cache[site].data);
+      } else {
+        var url = "http://api.sl.se/api2/realtimedepartures.json?key="+secrets.trafiklab.slv3.apikey+"&siteid="+encodeURI(site)+"&timewindow="+encodeURI(timewindow);
         request({
           url: url,
           json: true
         }, function(err, res, body) {
-          if(err) callback(err);
-          else {
-            if(body.StatusCode > 0) callback(new Error("Statuscode not 0: " + body.StatusCode + "("+body.Message+")"));
-            else {
+          if(err) {
+            cb(err);
+          } else {
+            if(!cache.hasOwnProperty(site)) cache[site] = { };
+            cache[site].time = moment();
+            cache[site].data = buildData(body);
+            cb(err, cache[site].data);
+          }
+        });
+      }
+    };
+    var fetcher = function(index, collector) {
+      if(index >= siteids.length) { 
+        return callback(null, collector);
+      } else { 
+        fetch(siteids[index], function(err, body){
+          if(err) {
+            return callback(err);
+          } else {
+            if(body.StatusCode > 0) {
+              return callback(new Error("Statuscode not 0: " + body.StatusCode + "("+body.Message+")"));
+            } else {
               collector.ExecutionTime += body.ExecutionTime;
-              var data = buildData(body);
+              var data = shiftToNow(body);
               for(var key in data.TrafficInfo) {
                 if(!collector.TrafficInfo.hasOwnProperty(key)) collector.TrafficInfo[key] = [ ];
                 for(var i = 0; i < data.TrafficInfo[key].length; i++)
@@ -118,5 +148,17 @@ module.exports = function(secrets) {
       }
     }
     fetcher(0, _collector);
-  }
+  };
+  returnVal.searchSites = function(options, callback) {
+    if(!(options.stationsonly === true || options.stationsonly === false || options.stationsonly === "true" || options.stationsonly === "false")) callback(new Error("stationsonly need to be a boolean"));
+
+    var url = "http://api.sl.se/api2/typeahead.json?key="+secrets.trafiklab.slplaces.apikey+"&searchstring=\""+encodeURI(options.searchstring)+"\"&timewindow="+encodeURI(timewindow);
+    request({
+      url: url,
+      json: true
+    }, function(err, res, body) {
+      callback(err, body.ResponseData);
+    });
+  };
+  return returnVal;
 }
