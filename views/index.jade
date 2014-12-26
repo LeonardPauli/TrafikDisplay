@@ -13,7 +13,12 @@ block content
         tr
           td= row.data.StopAreaName
           td= row.data.Destination
-          td= row.time.fromNow()
+          //p= JSON.stringify(row)
+          p= row.departsNow && true ? "y" : "N"
+          if row.departsNow
+            td nu
+          else
+            td= row.time.fromNow()
   h1 Bussar (10 min att gå)
   table
     thead
@@ -25,7 +30,10 @@ block content
         tr
           td= row.data.StopAreaName
           td= row.data.Destination
-          td= row.time.fromNow()
+          if row.departsNow
+            td nu
+          else
+            td= row.time.fromNow()
   h1 Pendeltåg (15 min att gå)
   table
     thead
@@ -37,7 +45,10 @@ block content
         tr
           td= row.data.StopAreaName
           td= row.data.Destination
-          td= row.time.fromNow()
+          if row.departsNow
+            td nu
+          else
+            td= row.time.fromNow()
   h1 Lokalbanor
   table
     thead
@@ -49,7 +60,10 @@ block content
         tr
           td= row.data.StopAreaName
           td= row.data.Destination
-          td= row.time.fromNow()
+          if row.departsNow
+            td nu
+          else
+            td= row.time.fromNow()
   h1 Båtar
   table
     thead
@@ -61,4 +75,7 @@ block content
         tr
           td= row.data.StopAreaName
           td= row.data.Destination
-          td= row.time.fromNow()
+          if row.departsNow
+            td nu
+          else
+            td= row.time.fromNow()
