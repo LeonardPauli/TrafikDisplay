@@ -5,11 +5,61 @@ var fs = require("fs");
 var slApi = require("../includes/apis/sl.js")(JSON.parse(fs.readFileSync("./secrets.json")));
 
 
+/* Sl api
+
+TrafficInfo
+  Metros[]
+    departsNow
+    isdeparted
+    minutes 3
+    time "2014-12-28T18:46:34.000Z"
+    data
+      StopAreaName
+      Destination
+      DisplayTime "3 min"
+  Buses[]
+    departsNow
+    isdeparted
+    minutes 3
+    time "2014-12-28T18:46:34.000Z"
+    data
+      StopAreaName
+      Destination
+      DisplayTime "19:46"
+      LineNumber "178"
+      ExpectedDateTime
+      TimeTabledDateTime
+  Trains[]
+    departsNow
+    isdeparted
+    minutes 3
+    time "2014-12-28T18:46:34.000Z"
+    data
+      StopAreaName
+      Destination
+      DisplayTime "19:46"
+      SecondaryDestinationName
+      ExpectedDateTime "2014-12-28T19:52:00"
+      TimeTabledDateTime
+
+*/
+
+
+
+
+
 /* GET home page. */
 router.get('/', function(req, res) {
   slApi.getDepartures([9507, 9302, 3747], function(err, data){
-    if(err) throw err;
-    else res.render('index', { data: data });
+    if (err) {throw err;return;}
+    res.render('index', { data: data });
+  });
+});
+
+router.get('/api/data', function(req, res) {
+  slApi.getDepartures([9507, 9302, 3747], function(err, data){
+    if (err) {throw err;return;}
+    res.json(data);
   });
 });
 
@@ -21,9 +71,9 @@ router.get('/api/json/departures/:siteid', function(req, res) {
     if(err) { 
       console.log(err);
       return res.status(500).end();
-    } else {
-      res.json(data);
     }
+    
+    res.json(data);
   });
 });
 
