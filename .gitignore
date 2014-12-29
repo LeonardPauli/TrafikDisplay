@@ -1,4 +1,4 @@
-anode_modules/*
+node_modules/*
 secrets.json
 
 data.json
