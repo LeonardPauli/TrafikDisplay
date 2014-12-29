@@ -2,7 +2,7 @@ function drawLoop(ctx, data, callback) {
   var cw = ctx.canvas.width, ch = ctx.canvas.height;
   ctx.clearRect(0, 0, cw, ch);
 
-
+// ------- Clock ----------
 
   ctx.font = "107px HelveticaNeue-UltraLight"
   ctx.fillStyle = "hsla(0,70%,77%,"+(0.75)+")";
@@ -11,223 +11,108 @@ function drawLoop(ctx, data, callback) {
   var clocktxt = days[(new Date()).getDay()]+" "+(new Date()).getHours()+":"+(mins<10?'0':'')+mins;
   //clocktxt += ", Godmorgon!"
   ctx.textAlign = "center";
-  ctx.fillText(clocktxt, cw/2, 120+60);
+  ctx.fillText(clocktxt, cw/2, 120+30);
   ctx.textAlign = "left";
 
 
-
+// ------- Init ----------
 
 
   cw = (cw - 25*3)/2
 
-  var bstartx, bstarty, timeline_off;
+  var bstartx, bstarty;
   var i;
 
 
 // ------- Buses ----------
 
-  buses_data = sortBusesData(data);
+
+  obj = drawBuses(ctx, sortBusesData(data), 25, 50+200, 50+200+30, cw, "Bussar (10 min bort)")
+  bstartx = obj.bstartx
+  bstarty = obj.bstarty
+  i = obj.i
+
+
+// ------- Metros ----------
   
-  bstartx = 25;
-  bstarty = 50+250;
-  timeline_off = 210;
-
-  i = bstarty+30;
-  for (var station_name in buses_data.stations)
-  if (buses_data.stations.hasOwnProperty(station_name)) {
-    var station = buses_data.stations[station_name];
-
-    ctx.fillStyle = "white";
-    ctx.font = "20px Helvetica"
-
-    ctx.fillText(station_name, bstartx+15, i);
-    ctx.fillStyle = "rgba(255,255,255,0.65)";
-    ctx.fillRect(bstartx,i+3,cw,1);
-    
-    i+=26;
-
-    for (var destination_name in station)
-    if (station.hasOwnProperty(destination_name)) {
-      var destination = station[destination_name];
-  
-      ctx.fillStyle = "rgba(255,255,255,0.95)";
-      ctx.font = "17px HelveticaNeue-Light"
-
-      ctx.fillText(destination_name, bstartx+15, i);
-
-      ctx.fillStyle = "rgba(255,255,255,0.25)";
-      ctx.fillRect(bstartx,i+8,cw,1);
-
-      for (var j = 0; j<destination.length; j++) {
-        var bus = destination[j];
-
-        var bx = bstartx+timeline_off;
-
-        var p = (bus.time-buses_data.time_now)/(buses_data.time_max-buses_data.time_now);
-        bx += Math.round(p*(cw-timeline_off-65-15));
-
-        ctx.fillStyle = "hsla(0,70%,60%,"+(0.8-0.7*p)+")";
-        ctx.fillRect(bx,i-20+1,65,25);
-
-        ctx.fillStyle = "rgba(255,255,255,"+(1-0.6*p)+")";
-        ctx.fillText(bus.display_time, bx+4, i);
-      }
-  
-      i+=30;
-    }
-
-    i+=30;
-  }
-
-  ctx.fillStyle = "hsla(0,70%,70%,"+(0.3)+")";
-  ctx.fillRect(bstartx+timeline_off,bstarty+10,1,i-bstarty-30-30+20);
-
-  ctx.font = "22px HelveticaNeue-Thin"
-  ctx.fillStyle = "hsla(0,70%,80%,"+(0.7)+")";
-  ctx.fillText("Bussar (10 min bort)", bstartx+10, bstarty);
-
-
-
-
-
-
-
+  obj = drawBuses(ctx, sortMetrosData(data), 25*2+cw, bstarty, bstarty+30, cw, "Tunnelbanor (också 10 min bort)")
+  bstartx = obj.bstartx
+  bstarty = obj.bstarty
+  i = obj.i
 
 
 // ------- Metros ----------
 
-  metros_data = sortMetrosData(data);
-
-  bstartx = 25*2+cw;
-
-  i = bstarty+30;
-  for (var station_name in metros_data.stations)
-  if (metros_data.stations.hasOwnProperty(station_name)) {
-    var station = metros_data.stations[station_name];
-
-    ctx.fillStyle = "white";
-    ctx.font = "20px Helvetica"
-
-    ctx.fillText(station_name, bstartx+15, i);
-    ctx.fillStyle = "rgba(255,255,255,0.65)";
-    ctx.fillRect(bstartx,i+3,cw,1);
-    
-    i+=26;
-
-    for (var destination_name in station)
-    if (station.hasOwnProperty(destination_name)) {
-      var destination = station[destination_name];
-  
-      ctx.fillStyle = "rgba(255,255,255,0.95)";
-      ctx.font = "17px HelveticaNeue-Light"
-
-      ctx.fillText(destination_name, bstartx+15, i);
-
-      ctx.fillStyle = "rgba(255,255,255,0.25)";
-      ctx.fillRect(bstartx,i+8,cw,1);
-
-      for (var j = 0; j<destination.length; j++) {
-        var bus = destination[j];
-
-        var bx = bstartx+timeline_off;
-
-        var p = (bus.time-metros_data.time_now)/(metros_data.time_max-metros_data.time_now);
-        bx += Math.round(p*(cw-timeline_off-65-15));
-
-        ctx.fillStyle = "hsla(0,70%,60%,"+(0.8-0.7*p)+")";
-        ctx.fillRect(bx,i-20+1,65,25);
-
-        ctx.fillStyle = "rgba(255,255,255,"+(1-0.6*p)+")";
-        ctx.fillText(bus.display_time, bx+4, i);
-      }
-  
-      i+=30;
-    }
-
-    i+=30;
-  }
-
-  ctx.fillStyle = "hsla(0,70%,70%,"+(0.3)+")";
-  ctx.fillRect(bstartx+timeline_off,bstarty+10,1,i-bstarty-30-30+20);
-
-  ctx.font = "22px HelveticaNeue-Thin"
-  ctx.fillStyle = "hsla(0,70%,80%,"+(0.7)+")";
-  ctx.fillText("Tunnelbanor (också 10 min bort)", bstartx+10, bstarty);
-
-
-
-
-
-
-
-
-
-// ------- Metros ----------
-
-  trains_data = sortTrainsData(data);
-  window.data = trains_data;
-
-  bstartx = 25*2+cw;
-  bstarty = i;
-
-  i += 30;
-  for (var station_name in trains_data.stations)
-  if (trains_data.stations.hasOwnProperty(station_name)) {
-    var station = trains_data.stations[station_name];
-
-    ctx.fillStyle = "white";
-    ctx.font = "20px Helvetica"
-
-    ctx.fillText(station_name, bstartx+15, i);
-    ctx.fillStyle = "rgba(255,255,255,0.65)";
-    ctx.fillRect(bstartx,i+3,cw,1);
-    
-    i+=26;
-
-    for (var destination_name in station)
-    if (station.hasOwnProperty(destination_name)) {
-      var destination = station[destination_name];
-  
-      ctx.fillStyle = "rgba(255,255,255,0.95)";
-      ctx.font = "17px HelveticaNeue-Light"
-
-      ctx.fillText(destination_name, bstartx+15, i);
-
-      ctx.fillStyle = "rgba(255,255,255,0.25)";
-      ctx.fillRect(bstartx,i+8,cw,1);
-
-      for (var j = 0; j<destination.length; j++) {
-        var bus = destination[j];
-
-        var bx = bstartx+timeline_off;
-
-        var p = (bus.time-trains_data.time_now)/(trains_data.time_max-trains_data.time_now);
-        bx += Math.round(p*(cw-timeline_off-65-15));
-
-        ctx.fillStyle = "hsla(0,70%,60%,"+(0.8-0.7*p)+")";
-        ctx.fillRect(bx,i-20+1,65,25);
-
-        ctx.fillStyle = "rgba(255,255,255,"+(1-0.6*p)+")";
-        ctx.fillText(bus.display_time, bx+4, i);
-      }
-  
-      i+=30;
-    }
-
-    i+=30;
-  }
-
-  ctx.fillStyle = "hsla(0,70%,70%,"+(0.3)+")";
-  ctx.fillRect(bstartx+timeline_off,bstarty+10,1,i-bstarty-30-30+20);
-
-  ctx.font = "22px HelveticaNeue-Thin"
-  ctx.fillStyle = "hsla(0,70%,80%,"+(0.7)+")";
-  ctx.fillText("Pendeltåg (15 min bort)", bstartx+10, bstarty);
-
-
+  obj = drawBuses(ctx, sortTrainsData(data), 25*2+cw, i, i+30, cw, "Pendeltåg (15 min bort)")
+  bstartx = obj.bstartx
+  bstarty = obj.bstarty
+  i = obj.i
 
 
 	callback();
+}
+
+
+function drawBuses(ctx, data, bstartx, bstarty, i, cw, title) {
+  var timeline_off = 210;
+
+  for (var station_name in data.stations)
+  if (data.stations.hasOwnProperty(station_name)) {
+    var station = data.stations[station_name];
+
+    ctx.fillStyle = "white";
+    ctx.font = "20px Helvetica"
+
+    ctx.fillText(station_name, bstartx+15, i);
+    ctx.fillStyle = "rgba(255,255,255,0.65)";
+    ctx.fillRect(bstartx,i+3,cw,1);
+    
+    i+=26;
+
+    for (var destination_name in station)
+    if (station.hasOwnProperty(destination_name)) {
+      var destination = station[destination_name];
+  
+      ctx.fillStyle = "rgba(255,255,255,0.95)";
+      ctx.font = "17px HelveticaNeue-Light"
+
+      ctx.fillText(destination_name, bstartx+15, i);
+
+      ctx.fillStyle = "rgba(255,255,255,0.25)";
+      ctx.fillRect(bstartx,i+8,cw,1);
+
+      for (var j = 0; j<destination.length; j++) {
+        var bus = destination[j];
+
+        var bx = bstartx+timeline_off;
+        var bw = 55;
+
+        var p = (bus.time-data.time_now)/(data.time_max-data.time_now);
+        bx += Math.round(p*(cw-timeline_off-65-15));
+
+        ctx.fillStyle = "hsla(0,70%,60%,"+(0.8-0.7*p)+")";
+        ctx.fillRect(bx+1,i-20+1,bw,25);
+
+        ctx.fillStyle = "rgba(255,255,255,"+(1-0.6*p)+")";
+        ctx.textAlign = "center";
+        ctx.fillText(bus.display_time, Math.round(bx+bw/2), i);
+        ctx.textAlign = "left";
+      }
+  
+      i+=30;
+    }
+
+    i+=30;
+  }
+
+  ctx.fillStyle = "hsla(0,70%,70%,"+(0.3)+")";
+  ctx.fillRect(bstartx+timeline_off,bstarty+10,1,i-bstarty-30-30+20);
+
+  ctx.font = "22px HelveticaNeue-Thin"
+  ctx.fillStyle = "hsla(0,70%,80%,"+(0.7)+")";
+  ctx.fillText(title, bstartx+10, bstarty);
+
+  return {bstartx:bstartx, bstarty:bstarty, i:i};
 }
 
 
@@ -393,7 +278,7 @@ window.onload = function () {
 	var canvas = document.getElementById('canvas');
 	var ctx = canvas.getContext('2d');
 	var w = document.body.clientWidth;
-	var h = 700;
+	var h = 900;
 	canvas.setAttribute("width", w);
 	canvas.setAttribute("height", h);
 
